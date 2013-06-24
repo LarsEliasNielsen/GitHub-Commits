@@ -37,19 +37,4 @@
     </div>';
   }
 
-  echo '<style>
-    div.gitCommit { border: 1px solid #333333; background: #F6F6F6; padding: 5px; margin: 5px; min-height: 30px; font-size: 12px; font-family: Helvetica, Verdana, Arial, sans-serif; }
-    div.gitCommit:hover { background: #E8E8E8; }
-    div.committerImage { float: left; width: 30px; height: 30px; }
-    div.committerImage img { width: 30px; height: 30px; }
-    div.gitDetails { float: left; margin-left: 5px; }
-    div.commitMessage a { font-size: 14px; font-weight: bold; color: #333333; text-decoration: none; }
-    div.commitAuthor { color: #999999; font-size: 10px; }
-    div.commitAuthor a { color: #990100; text-decoration: none; }
-    div.commitAuthor a:hover { color: #B90504; text-decoration: underline; }
-    div.commitLink { float: right; margin-top: 10px; }
-    div.commitLink a { background: #990100; color: #F6F6F6; text-decoration: none; padding: 3px 5px; }
-    div.commitLink a:hover { background: #B90504; text-decoration: underline; }
-  </style>';
-
 ?>
