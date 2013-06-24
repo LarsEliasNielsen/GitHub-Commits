@@ -17,19 +17,28 @@
      * 
      */
     function getGitHubApi($sshCloneUrl = 'git@github.com:LarsEliasNielsen/GitTest.git', $numberOfCommits = 5) {
-      // git@github.com:LarsEliasNielsen/GitTest.git
+
+      // $string = 'git@github.com:LarsEliasNielsen/GitTest.git';
+      // echo 'string: '.$string.'<br />';
+
+      // Regex to filter the git clone url
+      $userPattern = array('/^git@github.com:/', '/\/[A-Za-z0-9\_\-]+.git$/');
+      $repoPattern = array('/^git@github.com:[A-Za-z0-9\_\-]+\//', '/.git$/');
+
+      // User and repo from clone url
+      $user = preg_replace($userPattern, '', $sshCloneUrl);
+      $repo = preg_replace($repoPattern, '', $sshCloneUrl);
 
       $curl = curl_init();
       curl_setopt_array($curl, array(
         CURLOPT_RETURNTRANSFER => 1,
-        CURLOPT_URL => 'https://api.github.com/repos/LarsEliasNielsen/GitHub-Commits/commits',
+        CURLOPT_URL => 'https://api.github.com/repos/'.$user.'/'.$repo.'/commits',
         CURLOPT_USERAGENT => $numberOfCommits.' latest commits',
         // CURLOPT_USERPWD => 'USER:PASS'
       ));
       
       $result = curl_exec($curl);
 
-      // return $result;
       printCommits($result, $numberOfCommits);
 
       curl_close($curl);
