@@ -23,3 +23,9 @@ div.commitAuthor a:hover { color: #B90504; text-decoration: underline; }
 div.commitLink { float: right; margin-top: 10px; }
 div.commitLink a { background: #990100; color: #F6F6F6; text-decoration: none; padding: 3px 5px; }
 div.commitLink a:hover { background: #B90504; text-decoration: underline; }
+
+@media (max-width: 600px) {
+    div.gitCommit { min-height: 55px; }
+    div.commitLink { clear: both; margin-top: 5px; width: 100%; }
+    div.commitLink a { display: block; text-align: center; }
+}
