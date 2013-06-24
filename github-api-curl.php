@@ -5,43 +5,78 @@
 </head>
 <body>
   <?php
+    /**
+     * Gets the API (v3) from GitHub.com with cURL.
+     *
+     * @param string sshCloneUrl
+     *  Copy the SSH Clone URL from GitHub
+     * @param int numberOfCommits
+     *  Number of commits you want to be shown
+     * @return object result
+     *  A JSON-object is returned from the API
+     * 
+     */
+    function getGitHubApi($sshCloneUrl = 'git@github.com:LarsEliasNielsen/GitTest.git', $numberOfCommits = 5) {
+      // git@github.com:LarsEliasNielsen/GitTest.git
 
-    $curl = curl_init();
-    curl_setopt_array($curl, array(
-      CURLOPT_RETURNTRANSFER => 1,
-      CURLOPT_URL => 'https://api.github.com/repos/LarsEliasNielsen/GitHub-Commits/commits',
-      CURLOPT_USERAGENT => '5 latest commits',
-      // CURLOPT_USERPWD => 'USER:PASS'
-    ));
-    
-    $result = curl_exec($curl);
+      $curl = curl_init();
+      curl_setopt_array($curl, array(
+        CURLOPT_RETURNTRANSFER => 1,
+        CURLOPT_URL => 'https://api.github.com/repos/LarsEliasNielsen/GitHub-Commits/commits',
+        CURLOPT_USERAGENT => $numberOfCommits.' latest commits',
+        // CURLOPT_USERPWD => 'USER:PASS'
+      ));
+      
+      $result = curl_exec($curl);
 
-    curl_close($curl);
+      // return $result;
+      printCommits($result, $numberOfCommits);
 
+      curl_close($curl);
 
-    $json = json_decode($result, true);
-    
-    for ($i = 0; $i < 5; $i ++) {
-
-      $committerAvatar = $json[$i]['author']['avatar_url'];
-      $committerUsername = $json[$i]['author']['login'];
-      $committerUrl = $json[$i]['author']['html_url'];
-      $commitMessage = $json[$i]['commit']['message'];
-
-      $commitRawDate = $json[$i]['commit']['author']['date'];
-      $commitDate = date('d-m-Y H:i:s', strtotime($commitRawDate));
-
-      $commitLink = $json[$i]['html_url'];
-
-      echo '<div class="gitCommit">
-        <div class="committerImage"><a href="'.$committerUrl.'"><img src="'.$committerAvatar.'" title="'.$committerUsername.'" /></a></div>
-        <div class="gitDetails">
-          <div class="commitMessage"><a href="'.$commitLink.'">'.$commitMessage.'</a></div>
-          <div class="commitAuthor">Authored on '.$commitDate.' by <a href="'.$committerUrl.'">'.$committerUsername.'</a></div>
-        </div>
-        <div class="commitLink"><a href="'.$commitLink.'">Browse commit</a></div>
-      </div>';
     }
+
+    /**
+     *
+     * Decodes and printes commit information
+     *
+     * @param object jsonResult
+     *  JSON object returned from getGitHubApi()
+     * @param int numberOfCommits
+     *  Number of commits you want to be shown
+     *
+     */
+    function printCommits($jsonResult, $numberOfCommits = 5) {
+      $json = json_decode($jsonResult, true);
+
+      for ($i = 0; $i < $numberOfCommits; $i ++) {
+
+        $committerAvatar = $json[$i]['author']['avatar_url'];
+        $committerUsername = $json[$i]['author']['login'];
+        $committerUrl = $json[$i]['author']['html_url'];
+        $commitMessage = $json[$i]['commit']['message'];
+
+        $commitRawDate = $json[$i]['commit']['author']['date'];
+        $commitDate = date('d-m-Y H:i:s', strtotime($commitRawDate));
+
+        $commitLink = $json[$i]['html_url'];
+
+        echo '<div class="gitCommit">
+          <div class="committerImage"><a href="'.$committerUrl.'"><img src="'.$committerAvatar.'" title="'.$committerUsername.'" /></a></div>
+          <div class="gitDetails">
+            <div class="commitMessage"><a href="'.$commitLink.'">'.$commitMessage.'</a></div>
+            <div class="commitAuthor">Authored on '.$commitDate.' by <a href="'.$committerUrl.'">'.$committerUsername.'</a></div>
+          </div>
+          <div class="commitLink"><a href="'.$commitLink.'">Browse commit</a></div>
+        </div>';
+      }
+    }
+
+  ?>
+
+  <?php
+    
+    $returnedJSON = getGitHubApi('git@github.com:LarsEliasNielsen/GitHub-Commits.git', 5);
 
   ?>
 </body>
