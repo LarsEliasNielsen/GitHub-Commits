@@ -70,14 +70,21 @@
 
         $commitLink = $json[$i]['html_url'];
 
-        echo '<div class="gitCommit">
-          <div class="committerImage"><a href="'.$committerUrl.'"><img src="'.$committerAvatar.'" title="'.$committerUsername.'" /></a></div>
-          <div class="gitDetails">
-            <div class="commitMessage"><a href="'.$commitLink.'">'.$commitMessage.'</a></div>
-            <div class="commitAuthor">Authored on '.$commitDate.' by <a href="'.$committerUrl.'">'.$committerUsername.'</a></div>
-          </div>
-          <div class="commitLink"><a href="'.$commitLink.'">Browse commit</a></div>
-        </div>';
+        if (isset($committerUsername) && isset($committerUrl) && isset($commitMessage) && isset($commitLink)) {
+          echo '<div class="gitCommit">
+            <div class="committerImage"><a href="'.$committerUrl.'"><img src="'.$committerAvatar.'" title="'.$committerUsername.'" /></a></div>
+            <div class="gitDetails">
+              <div class="commitMessage"><a href="'.$commitLink.'">'.$commitMessage.'</a></div>
+              <div class="commitAuthor">Authored on '.$commitDate.' by <a href="'.$committerUrl.'">'.$committerUsername.'</a></div>
+            </div>
+            <div class="commitLink"><a href="'.$commitLink.'">Browse commit</a></div>
+          </div>';
+        } else {
+          // If the API dosen't contain any of more commits
+          echo '<div class="gitCommit">
+            <div class="error">Sorry, no commit.</div>
+          </div>';
+        }
       }
     }
 
@@ -85,7 +92,7 @@
 
   <?php
     
-    $returnedJSON = getGitHubApi('git@github.com:LarsEliasNielsen/GitHub-Commits.git', 5);
+    $returnedJSON = getGitHubApi('git@github.com:LarsEliasNielsen/GitHub-Commits.git', 20);
 
   ?>
 </body>
