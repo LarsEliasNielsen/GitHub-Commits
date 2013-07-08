@@ -1,0 +1,8 @@
+name = GitHub Commits
+description = Provides a block with recent Git-commits to a specific project, eg. the project you're currently working on.
+
+core = 7.x
+version = 7.x-0.1
+package = Git
+
+files[] = github_commits.module;
