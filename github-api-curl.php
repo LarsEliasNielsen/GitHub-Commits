@@ -16,7 +16,7 @@
      *  A JSON-object is returned from the API
      * 
      */
-    function getGitHubApi($sshCloneUrl = 'git@github.com:LarsEliasNielsen/GitTest.git', $numberOfCommits = 5) {
+    function getGitHubApi($sshCloneUrl = 'https://github.com/octocat/Hello-World.git', $numberOfCommits = 5) {
 
       // Regex to filter the git clone url
       $userPattern = array('/^git@github.com:/', '/\/[A-Za-z0-9\_\-]+.git$/');
