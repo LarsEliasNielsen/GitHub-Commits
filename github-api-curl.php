@@ -18,9 +18,6 @@
      */
     function getGitHubApi($sshCloneUrl = 'git@github.com:LarsEliasNielsen/GitTest.git', $numberOfCommits = 5) {
 
-      // $string = 'git@github.com:LarsEliasNielsen/GitTest.git';
-      // echo 'string: '.$string.'<br />';
-
       // Regex to filter the git clone url
       $userPattern = array('/^git@github.com:/', '/\/[A-Za-z0-9\_\-]+.git$/');
       $repoPattern = array('/^git@github.com:[A-Za-z0-9\_\-]+\//', '/.git$/');
@@ -29,6 +26,8 @@
       $user = preg_replace($userPattern, '', $sshCloneUrl);
       $repo = preg_replace($repoPattern, '', $sshCloneUrl);
 
+      // cURL the API
+      // CURLOPT_USERPWN is used if repo is private, CAUTION
       $curl = curl_init();
       curl_setopt_array($curl, array(
         CURLOPT_RETURNTRANSFER => 1,
@@ -39,6 +38,7 @@
       
       $result = curl_exec($curl);
 
+      // Call print function
       printCommits($result, $numberOfCommits);
 
       curl_close($curl);
@@ -56,20 +56,25 @@
      *
      */
     function printCommits($jsonResult, $numberOfCommits = 5) {
+      // Decode JSON
       $json = json_decode($jsonResult, true);
 
+      // Print entity for each commit
       for ($i = 0; $i < $numberOfCommits; $i ++) {
 
+        // Private commit variables
         $committerAvatar = $json[$i]['author']['avatar_url'];
         $committerUsername = $json[$i]['author']['login'];
         $committerUrl = $json[$i]['author']['html_url'];
         $commitMessage = $json[$i]['commit']['message'];
-
         $commitRawDate = $json[$i]['commit']['author']['date'];
         $commitDate = date('d-m-Y H:i:s', strtotime($commitRawDate));
-
         $commitLink = $json[$i]['html_url'];
 
+        /**
+         * TODO: Redo print
+         */
+        // Simple print of entity
         if (isset($committerUsername) && isset($committerUrl) && isset($commitMessage) && isset($commitLink)) {
           echo '<div class="gitCommit">
             <div class="committerImage"><a href="'.$committerUrl.'"><img src="'.$committerAvatar.'" title="'.$committerUsername.'" /></a></div>
@@ -92,6 +97,7 @@
 
   <?php
     
+    // Simple test function call
     $returnedJSON = getGitHubApi('git@github.com:LarsEliasNielsen/GitHub-Commits.git', 20);
 
   ?>
