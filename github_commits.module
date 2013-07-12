@@ -63,14 +63,14 @@
 
       $json = json_decode($result, true);
 
-      $max_loop = 20;
+      $max_loop = 4;
       $count = 0;
 
       foreach ($json as $key => $val) {
         
-        // 
+        // Place API content
         $items[] = array(
-          'data' => l($json[$key]['commit']['message'], $json[$key]['html_url']),
+          'data' => l($json[$key]['commit']['message'], $json[$key]['html_url']) . ' by ' . l($json[$key]['author']['login'], $json[$key]['author']['html_url']) . ' on ' . $json[$key]['commit']['author']['date'],
         );
 
         // If there is no commits
