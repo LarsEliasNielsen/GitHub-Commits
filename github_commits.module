@@ -29,70 +29,111 @@
 
 
   /**
+   * Get commits from API with cURL
+   */
+  function get_api_content() {
+    $items = array();
+
+    if (user_access('access content')) {
+
+      // User input
+      $sshCloneUrl = 'git@github.com:LarsEliasNielsen/github_commits.git';
+      $numberOfCommits = 5;
+
+      $userPattern = array('/^git@github.com:/', '/\/[A-Za-z0-9\_\-]+.git$/');
+      $repoPattern = array('/^git@github.com:[A-Za-z0-9\_\-]+\//', '/.git$/');
+
+      // User and repo from clone url
+      $user = preg_replace($userPattern, '', $sshCloneUrl);
+      $repo = preg_replace($repoPattern, '', $sshCloneUrl);
+
+      // cURL the API
+      // CURLOPT_USERPWN is used if repo is private, CAUTION
+      $curl = curl_init();
+      curl_setopt_array($curl, array(
+        CURLOPT_RETURNTRANSFER => 1,
+        CURLOPT_URL => 'https://api.github.com/repos/'.$user.'/'.$repo.'/commits',
+        CURLOPT_USERAGENT => $numberOfCommits.' latest commits',
+        // CURLOPT_USERPWD => 'USER:PASS'
+      ));
+      
+      $result = curl_exec($curl);
+
+      curl_close($curl);
+
+      $json = json_decode($result, true);
+
+      $max_loop = 20;
+      $count = 0;
+
+      foreach ($json as $key => $val) {
+        
+        // 
+        $items[] = array(
+          'data' => l($json[$key]['commit']['message'], $json[$key]['html_url']),
+        );
+
+        // If there is no commits
+        if (empty($items)) {
+          $items[] = array(
+            'data' => 'No commits available',
+          );
+        }
+
+        $count++;
+        // Limit loop to a number of commits
+        if ($count >= $max_loop) {
+          // If list is longer, print link to all commits
+          $items[] = array(
+            'data' => l('See full list of commits', '#'),
+            'id' => 'full_list',
+          );
+          break;
+        }
+
+      }
+
+    } else {
+
+      // Access content denied
+      $items[] = array(
+        'data' => t('You don\'t have access to the content'),
+      );
+
+    }
+
+    return $items;
+  }
+
+  /**
    * Implements hook_block_view().
    */
   function github_commits_block_view($delta = '') {
+    $block = array();
+
     switch($delta) {
       case 'github_commits':
+        
+        // List attributes
+        $attributes = array(
+          'id' => 'someId',
+          'class' => 'someClass',
+        );
+
+        // Set block title
         $block['subject'] = t('GitHub Commits');
 
-        if (user_access('access content')) {
+        // Get content from API
+        $items = get_api_content();
 
-          // User input
-          $sshCloneUrl = 'git@github.com:LarsEliasNielsen/github_commits.git';
-          $numberOfCommits = 5;
-
-          $userPattern = array('/^git@github.com:/', '/\/[A-Za-z0-9\_\-]+.git$/');
-          $repoPattern = array('/^git@github.com:[A-Za-z0-9\_\-]+\//', '/.git$/');
-
-          // User and repo from clone url
-          $user = preg_replace($userPattern, '', $sshCloneUrl);
-          $repo = preg_replace($repoPattern, '', $sshCloneUrl);
-
-          // cURL the API
-          // CURLOPT_USERPWN is used if repo is private, CAUTION
-          $curl = curl_init();
-          curl_setopt_array($curl, array(
-            CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_URL => 'https://api.github.com/repos/'.$user.'/'.$repo.'/commits',
-            CURLOPT_USERAGENT => $numberOfCommits.' latest commits',
-            // CURLOPT_USERPWD => 'USER:PASS'
-          ));
-          
-          $result = curl_exec($curl);
-
-          curl_close($curl);
-
-          $json = json_decode($result, true);
-
-          $items = array();
-
-          for ($i = 0; $i < $numberOfCommits; $i++) {
-            $items[] = array(
-              'data' => l($json[$i]['commit']['message'], $json[$i]['html_url']),
-            ); 
-          }
-
-          // List attributes
-          $attributes = array(
-            'id' => 'someId',
-            'class' => 'someClass',
-          );
-
-          if (empty($items)) {
-            $block['content'] = t('No commit available.');  
-          } 
-          else {
-            $block['content'] = theme('item_list', array(
-              'items' => $items,
-              'title' => 'Hello',
-              'type' => 'ul',
-              'attributes' => $attributes,
-              ));
-            }
-
-        }
-      return $block;
+        // Print list
+        $block['content'] = theme('item_list', array(
+          'items' => $items,
+          'type' => 'ul',
+          'attributes' => $attributes,
+        ));
+        
+        return $block;
     }
     
   }
