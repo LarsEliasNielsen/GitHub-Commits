@@ -59,37 +59,53 @@
       // Decode JSON
       $json = json_decode($jsonResult, true);
 
+      $committerAvatar = array();
+      $committerUsername = array();
+      $committerUrl = array();
+      $commitMessage = array();
+      $commitRawDate = array();
+      $commitDate = array();
+      $commitLink = array();
+
       // Print entity for each commit
       for ($i = 0; $i < $numberOfCommits; $i ++) {
 
         // Private commit variables
-        $committerAvatar = $json[$i]['author']['avatar_url'];
-        $committerUsername = $json[$i]['author']['login'];
-        $committerUrl = $json[$i]['author']['html_url'];
-        $commitMessage = $json[$i]['commit']['message'];
+        // $committerAvatar = $json[$i]['author']['avatar_url'];
+        // $committerUsername = $json[$i]['author']['login'];
+        // $committerUrl = $json[$i]['author']['html_url'];
+        // $commitMessage = $json[$i]['commit']['message'];
         $commitRawDate = $json[$i]['commit']['author']['date'];
-        $commitDate = date('d-m-Y H:i:s', strtotime($commitRawDate));
-        $commitLink = $json[$i]['html_url'];
+        $commitDateVar = date('d-m-Y H:i:s', strtotime($commitRawDate));
+        // $commitLink = $json[$i]['html_url'];
+
+        // Push variables to global arrays
+        array_push($committerAvatar, $json[$i]['author']['avatar_url']);
+        array_push($committerUsername, $json[$i]['author']['login']);
+        array_push($committerUrl, $json[$i]['author']['html_url']);
+        array_push($commitMessage, $json[$i]['commit']['message']);
+        array_push($commitDate, $commitDateVar);
+        array_push($commitLink, $json[$i]['html_url']);
 
         /**
          * TODO: Redo print
          */
         // Simple print of entity
-        if (isset($committerUsername) && isset($committerUrl) && isset($commitMessage) && isset($commitLink)) {
-          echo '<div class="gitCommit">
-            <div class="committerImage"><a href="'.$committerUrl.'"><img src="'.$committerAvatar.'" title="'.$committerUsername.'" /></a></div>
-            <div class="gitDetails">
-              <div class="commitMessage"><a href="'.$commitLink.'">'.$commitMessage.'</a></div>
-              <div class="commitAuthor">Authored on '.$commitDate.' by <a href="'.$committerUrl.'">'.$committerUsername.'</a></div>
-            </div>
-            <div class="commitLink"><a href="'.$commitLink.'">Browse commit</a></div>
-          </div>';
-        } else {
-          // If the API dosen't contain any of more commits
-          echo '<div class="gitCommit">
-            <div class="error">Sorry, no commit.</div>
-          </div>';
-        }
+        // if (isset($committerUsername) && isset($committerUrl) && isset($commitMessage) && isset($commitLink)) {
+        //   echo '<div class="gitCommit">
+        //     <div class="committerImage"><a href="'.$committerUrl.'"><img src="'.$committerAvatar.'" title="'.$committerUsername.'" /></a></div>
+        //     <div class="gitDetails">
+        //       <div class="commitMessage"><a href="'.$commitLink.'">'.$commitMessage.'</a></div>
+        //       <div class="commitAuthor">Authored on '.$commitDate.' by <a href="'.$committerUrl.'">'.$committerUsername.'</a></div>
+        //     </div>
+        //     <div class="commitLink"><a href="'.$commitLink.'">Browse commit</a></div>
+        //   </div>';
+        // } else {
+        //   // If the API dosen't contain any of more commits
+        //   echo '<div class="gitCommit">
+        //     <div class="error">Sorry, no commit.</div>
+        //   </div>';
+        // }
       }
     }
 
@@ -98,7 +114,7 @@
   <?php
     
     // Simple test function call
-    $returnedJSON = getGitHubApi('git@github.com:LarsEliasNielsen/GitHub-Commits.git', 20);
+    $returnedJSON = getGitHubApi('git@github.com:LarsEliasNielsen/github_commits.git', 10);
 
   ?>
 </body>

@@ -8,10 +8,11 @@
   function github_commits_help($path, $arg) {
     switch ($path) {
       case "admin/help#github_commits":
-      return '<p>' . t("Displays current Git-commits from a GitHub-repository.") . '</p>';
+        return '<p>' . t("Displays current Git-commits from a GitHub-repository.") . '</p>';
       break;
     }
   }
+
 
   /**
    * Implements hook_block_info().
@@ -26,33 +27,70 @@
     return $blocks;
   }
 
+
   /**
    * Implements hook_block_view().
    */
   function github_commits_block_view($delta = '') {
-    switch($delta){
+    switch($delta) {
       case 'github_commits':
         $block['subject'] = t('GitHub Commits');
-        if(user_access('access content')){
 
-          //Array to contain items for the block to render.
-          $items = array();
+        if (user_access('access content')) {
+
+          // User input
+          $sshCloneUrl = 'git@github.com:LarsEliasNielsen/github_commits.git';
+          $numberOfCommits = 5;
+
+          $userPattern = array('/^git@github.com:/', '/\/[A-Za-z0-9\_\-]+.git$/');
+          $repoPattern = array('/^git@github.com:[A-Za-z0-9\_\-]+\//', '/.git$/');
+
+          // User and repo from clone url
+          $user = preg_replace($userPattern, '', $sshCloneUrl);
+          $repo = preg_replace($repoPattern, '', $sshCloneUrl);
+
+          // cURL the API
+          // CURLOPT_USERPWN is used if repo is private, CAUTION
+          $curl = curl_init();
+          curl_setopt_array($curl, array(
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_URL => 'https://api.github.com/repos/'.$user.'/'.$repo.'/commits',
+            CURLOPT_USERAGENT => $numberOfCommits.' latest commits',
+            // CURLOPT_USERPWD => 'USER:PASS'
+          ));
           
-          //Iterate over the resultset and format as links.
-          for ($i = 0; $i < 5; $i ++) {
+          $result = curl_exec($curl);
+
+          curl_close($curl);
+
+          $json = json_decode($result, true);
+
+          $items = array();
+
+          for ($i = 0; $i < $numberOfCommits; $i++) {
             $items[] = array(
-              'data' => l('This is '.($i+1), '#'),
-            );
+              'data' => l($json[$i]['commit']['message'], $json[$i]['html_url']),
+            ); 
           }
-        
-          if (empty($items)) { //No content in the last week.
-            $block['content'] = t('No posts available.');  
+
+          // List attributes
+          $attributes = array(
+            'id' => 'someId',
+            'class' => 'someClass',
+          );
+
+          if (empty($items)) {
+            $block['content'] = t('No commit available.');  
           } 
           else {
-            //Pass data through theme function.
             $block['content'] = theme('item_list', array(
-              'items' => $items));
-          }
+              'items' => $items,
+              'title' => 'Hello',
+              'type' => 'ul',
+              'attributes' => $attributes,
+              ));
+            }
+
         }
       return $block;
     }
