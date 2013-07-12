@@ -6,3 +6,6 @@ version = 7.x-0.1
 package = Git
 
 files[] = github_commits.module;
+
+; Link to configuration page, set in current_posts.module: current_posts_menu()
+configure = admin/config/content/github_commits

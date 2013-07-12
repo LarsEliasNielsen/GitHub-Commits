@@ -29,6 +29,31 @@
 
 
   /**
+   * Implements hook_menu().
+   */
+  function github_commits_menu() {
+    $items = array();
+
+    $items['admin/config/content/github_commits'] = array(
+      'title' => 'GitHub Commits',
+      'description' => 'Configuration for GitHub Commits module',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('github_commits_form'),
+      'access arguments' => array('access administration pages'),
+      'type' => MENU_NORMAL_ITEM,
+    );
+    // $items['current_posts'] = array(
+    //   'title' => 'Current posts',
+    //   'page callback' => '_current_posts_page',
+    //   'access arguments' => array('access current_posts content'),
+    //   'type' => MENU_NORMAL_ITEM, //Will appear in Navigation menu.
+    // );
+
+    return $items;
+  }
+
+
+  /**
    * Get commits from API with cURL
    */
   function get_api_content() {
@@ -37,8 +62,10 @@
     if (user_access('access content')) {
 
       // User input
-      $sshCloneUrl = 'git@github.com:LarsEliasNielsen/github_commits.git';
-      $numberOfCommits = 5;
+      // $sshCloneUrl = 'git@github.com:LarsEliasNielsen/github_commits.git';
+      // $numberOfCommits = 5;
+      $sshCloneUrl = variable_get('clone_url', 'git@github.com:LarsEliasNielsen/github_commits.git');
+      $numberOfCommits = variable_get('commit_number', 5);
 
       $userPattern = array('/^git@github.com:/', '/\/[A-Za-z0-9\_\-]+.git$/');
       $repoPattern = array('/^git@github.com:[A-Za-z0-9\_\-]+\//', '/.git$/');
@@ -63,14 +90,18 @@
 
       $json = json_decode($result, true);
 
-      $max_loop = 4;
       $count = 0;
 
       foreach ($json as $key => $val) {
         
+        $commitMessage = l($json[$key]['commit']['message'], $json[$key]['html_url']);
+        $committer = l($json[$key]['author']['login'], $json[$key]['author']['html_url']);
+        $commitRawDate = $json[$key]['commit']['author']['date'];
+        $commitDate = date('m-d-Y H:i:s', strtotime($commitRawDate));
+
         // Place API content
         $items[] = array(
-          'data' => l($json[$key]['commit']['message'], $json[$key]['html_url']) . ' by ' . l($json[$key]['author']['login'], $json[$key]['author']['html_url']) . ' on ' . $json[$key]['commit']['author']['date'],
+          'data' => '['.$commitDate.'] '.$commitMessage.' by '.$committer,
         );
 
         // If there is no commits
@@ -82,7 +113,7 @@
 
         $count++;
         // Limit loop to a number of commits
-        if ($count >= $max_loop) {
+        if ($count >= $numberOfCommits) {
           // If list is longer, print link to all commits
           $items[] = array(
             'data' => l('See full list of commits', '#'),
@@ -104,6 +135,7 @@
 
     return $items;
   }
+
 
   /**
    * Implements hook_block_view().
@@ -135,5 +167,33 @@
         
         return $block;
     }
-    
+  }
+
+
+  /**
+   * Page callback: Current posts settings
+   *
+   * @see current_posts_menu()
+   */
+  function github_commits_form($form, &$form_state) {
+    $form['clone_url'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Repositorys clone URL'),
+      '#default_value' => variable_get('clone_url', 'git@github.com:LarsEliasNielsen/github_commits.git'),
+      '#size' => 50,
+      '#maxlength' => 264,
+      '#description' => t('The clone URL contains the creator and repository.'),
+      '#required' => TRUE,
+    );
+    $form['commit_number'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Commit number'),
+      '#default_value' => variable_get('commit_number', 5),
+      '#size' => 1,
+      '#maxlength' => 2,
+      '#description' => t('The number of commit messages to display.'),
+      '#required' => TRUE,
+    );
+
+    return system_settings_form($form);
   }
