@@ -42,12 +42,6 @@
       'access arguments' => array('access administration pages'),
       'type' => MENU_NORMAL_ITEM,
     );
-    // $items['current_posts'] = array(
-    //   'title' => 'Current posts',
-    //   'page callback' => '_current_posts_page',
-    //   'access arguments' => array('access current_posts content'),
-    //   'type' => MENU_NORMAL_ITEM, //Will appear in Navigation menu.
-    // );
 
     return $items;
   }
@@ -60,10 +54,7 @@
     $items = array();
 
     if (user_access('access content')) {
-
       // User input
-      // $sshCloneUrl = 'git@github.com:LarsEliasNielsen/github_commits.git';
-      // $numberOfCommits = 5;
       $sshCloneUrl = variable_get('clone_url', 'git@github.com:LarsEliasNielsen/github_commits.git');
       $numberOfCommits = variable_get('commit_number', 5);
       $timestampFormat = variable_get('timestamp_format', 'm-d-Y H:i:s');
@@ -94,7 +85,6 @@
       $count = 0;
 
       foreach ($json as $key => $val) {
-        
         $commitMessage = l($json[$key]['commit']['message'], $json[$key]['html_url']);
         $committer = l($json[$key]['author']['login'], $json[$key]['author']['html_url']);
         $commitRawDate = $json[$key]['commit']['author']['date'];
@@ -122,16 +112,12 @@
           );
           break;
         }
-
       }
-
     } else {
-
       // Access content denied
       $items[] = array(
         'data' => t('You don\'t have access to the content'),
       );
-
     }
 
     return $items;
@@ -146,7 +132,6 @@
 
     switch($delta) {
       case 'github_commits':
-        
         // List attributes
         $attributes = array(
           'id' => 'someId',
